@@ -1,10 +1,8 @@
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collection;
 
-public class CourseCatalog implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class CourseCatalog {
 
     private Map<String, Course> courses = new HashMap<>();
 
@@ -24,6 +22,10 @@ public class CourseCatalog implements Serializable {
         return courses.isEmpty();
     }
 
+    public Collection<Course> getAllCourses() {
+        return courses.values();
+    }
+
     public void showCourses() {
         if (courses.isEmpty()) {
             System.out.println("Sistemde kayıtlı ders yok.");
@@ -31,7 +33,10 @@ public class CourseCatalog implements Serializable {
         }
 
         for (Course c : courses.values()) {
-            System.out.println(c.getCode() + " - " + c.getName() + " (AKTS: " + c.getEcts() + ")");
+            System.out.println(
+                    c.getCode() + " - " + c.getName() +
+                            " (AKTS: " + c.getEcts() + ")"
+            );
         }
     }
 }

@@ -1,11 +1,11 @@
-public class GraduateStudent extends Student implements java.io.Serializable {
+public class GraduateStudent extends Student {
 
-    public GraduateStudent(String number, String name, String surname, String department){
-        super(number, name, surname, department);
+    public GraduateStudent(String number, String name, String surname, String department) {
+        super(number, name, surname, department, "G");
     }
 
     @Override
     public double calculateTuition() {
-        return registrations.size() * 5.350;
+        return super.calculateTuition() * 2;
     }
 }

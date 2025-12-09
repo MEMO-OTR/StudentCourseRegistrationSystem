@@ -1,14 +1,15 @@
 import java.io.*;
-import java.sql.SQLOutput;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
     private static CourseCatalog courseCatalog = new CourseCatalog();
     private static Map<String, Student> students = new HashMap<>();
+
+    private static final String STUDENT_FILE = "students.csv";
+    private static final String COURSE_FILE = "courses.csv";
+    private static final String REG_FILE = "registrations.csv";
 
     private static String inputRequired(String message) {
         while (true) {
@@ -19,71 +20,158 @@ public class Main {
         }
     }
 
-    private static void saveStudents() {
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("students.dat"));
-            out.writeObject(students);
-            out.close();
+    private static void saveStudentsCSV() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(STUDENT_FILE))) {
+            pw.println("number,name,surname,department,type");
+            for (Student s : students.values()) {
+                pw.println(s.getNumber() + "," +
+                        s.getName() + "," +
+                        s.getSurname() + "," +
+                        s.getDepartment() + "," +
+                        s.getType());
+            }
         } catch (Exception e) {
-            System.out.println("❌ Failed to save students: " + e.getMessage());
+            System.out.println("❌ Failed to save students CSV: " + e.getMessage());
         }
     }
 
-    private static void loadStudents() {
+    private static void loadStudentsCSV() {
         try {
-            File file = new File("students.dat");
+            File file = new File(STUDENT_FILE);
             if (!file.exists()) return;
 
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
-            students = (Map<String, Student>) in.readObject();
-            in.close();
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            br.readLine(); // skip header
+
+            String line;
+            while ((line = br.readLine()) != null) {
+
+                String[] arr = line.split(",");
+                if (arr.length < 5) continue;
+
+                String number = arr[0];
+                String name = arr[1];
+                String surname = arr[2];
+                String dept = arr[3];
+                String type = arr[4];
+
+                Student s = type.equals("G")
+                        ? new GraduateStudent(number, name, surname, dept)
+                        : new Student(number, name, surname, dept, "U");
+
+                students.put(number, s);
+            }
+
+            br.close();
 
         } catch (Exception e) {
-            System.out.println("❌ Failed to load students: " + e.getMessage());
+            System.out.println("❌ Failed to load students CSV: " + e.getMessage());
         }
     }
 
-    private static void saveCourses() {
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("courses.dat"));
-            out.writeObject(courseCatalog);
-            out.close();
+    private static void saveCoursesCSV() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(COURSE_FILE))) {
+            pw.println("code,name,ects");
+            for (Course c : courseCatalog.getAllCourses()) {
+                pw.println(c.getCode() + "," + c.getName() + "," + c.getEcts());
+            }
         } catch (Exception e) {
-            System.out.println("❌ Failed to save courses: " + e.getMessage());
+            System.out.println("❌ Failed to save courses CSV: " + e.getMessage());
         }
     }
 
-    private static void loadCourses() {
+    private static void loadCoursesCSV() {
         try {
-            File file = new File("courses.dat");
+            File file = new File(COURSE_FILE);
             if (!file.exists()) return;
 
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
-            courseCatalog = (CourseCatalog) in.readObject();
-            in.close();
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            br.readLine(); // skip header
+
+            String line;
+            while ((line = br.readLine()) != null) {
+
+                String[] arr = line.split(",");
+                if (arr.length < 3) continue;
+
+                Course c = new Course(arr[0], arr[1], Integer.parseInt(arr[2]));
+                courseCatalog.addCourse(c);
+            }
+            br.close();
 
         } catch (Exception e) {
-            System.out.println("❌ Failed to load courses: " + e.getMessage());
+            System.out.println("❌ Failed to load courses CSV: " + e.getMessage());
+        }
+    }
+
+    private static void saveRegistrationsCSV() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(REG_FILE))) {
+            pw.println("studentNumber,courseCode");
+
+            for (Student s : students.values()) {
+                for (Registration r : s.registrations) {
+                    pw.println(s.getNumber() + "," + r.getCourse().getCode());
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Failed to save registrations CSV: " + e.getMessage());
+        }
+    }
+
+    private static void loadRegistrationsCSV() {
+        try {
+            File file = new File(REG_FILE);
+            if (!file.exists()) return;
+
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            br.readLine(); // header skip
+
+            String line;
+            while ((line = br.readLine()) != null) {
+
+                String[] arr = line.split(",");
+                if (arr.length < 2) continue;
+
+                String number = arr[0];
+                String courseCode = arr[1];
+
+                Student s = students.get(number);
+                Course c = courseCatalog.getCourse(courseCode);
+
+                if (s != null && c != null) {
+                    s.registerCourse(c);
+                }
+            }
+
+            br.close();
+
+        } catch (Exception e) {
+            System.out.println("❌ Failed to load registrations CSV: " + e.getMessage());
         }
     }
 
     public static void main(String[] args) {
 
-        loadStudents();
-        loadCourses();
+        loadStudentsCSV();
+        loadCoursesCSV();
+        loadRegistrationsCSV();
 
         while (true) {
-            System.out.println("\n--- Welcome to the Student Course Registration System ---");
+            System.out.println("\n--- Welcome To The Student Course Registration System ---");
             System.out.println("[+] Continue");
             System.out.println("[-] Exit");
 
             String s = inputRequired("Please Make A Selection (+/-) : ");
 
             if (s.equals("+")) mainMenu();
-            else if (s.equals("-")){
-                saveStudents();
-                saveCourses();
-                System.out.println("You logged out Goodbye...");
+            else if (s.equals("-")) {
+
+                saveStudentsCSV();
+                saveCoursesCSV();
+                saveRegistrationsCSV();
+
+                System.out.println("...You Logged Out Goodbye...");
                 break;
             }
             else System.out.println("❌ Invalid input ❌");
@@ -91,14 +179,14 @@ public class Main {
     }
 
     private static void mainMenu() {
-        while(true){
+        while (true) {
             System.out.println("\n--- MAIN MENU ---");
             System.out.println("1) Student Operations");
             System.out.println("2) Course Registration");
             System.out.println("3) Add / Remove Course");
             System.out.println("4) Show Course List");
             System.out.println("5) Student Registration Check");
-            System.out.println("6) Return to Main Screen\n");
+            System.out.println("6) Return To Main Screen\n");
 
             int sec = Integer.parseInt(inputRequired("Please Select (1-6) : "));
 
@@ -109,9 +197,8 @@ public class Main {
                 case 4 -> courseCatalog.showCourses();
                 case 5 -> studentCheck();
                 case 6 -> { return; }
-                default -> System.out.println("❌ Invalid input ❌");
+                default -> System.out.println("❌ Invalid Input...");
             }
-
         }
     }
 
@@ -126,41 +213,40 @@ public class Main {
             int sec = Integer.parseInt(inputRequired("Please Select (1-4) : "));
 
             switch (sec) {
-                case 1 -> loadStudents();
+                case 1 -> addStudent();
                 case 2 -> deleteStudent();
                 case 3 -> editStudent();
-                case 4 -> {return;}
+                case 4 -> { return; }
             }
-
         }
-
     }
 
     private static void addStudent() {
 
-        String type = inputRequired("Is This Student Undergraduate Or Gradute ? (U/H) ").toUpperCase();
+        String type = inputRequired("Is This Student Undergraduate Or Gradute ? (U/G) ").toUpperCase();
         String no = inputRequired("Student Number : ");
-        String name = inputRequired("First Name : ");
-        String surname = inputRequired("Last Name : ");
-        String dept = inputRequired("Department : ");
+        String name = inputRequired("Student Name : ");
+        String surname = inputRequired("Student Surname : ");
+        String dept = inputRequired("Student Department : ");
 
         Student st = type.equals("G")
                 ? new GraduateStudent(no, name, surname, dept)
-                : new Student(no, name, surname, dept);
+                : new Student(no, name, surname, dept, "U");
 
         students.put(no, st);
-        saveStudents();
+        saveStudentsCSV();
         System.out.println("✔ Student Added Successfully...");
     }
 
-    private static void deleteStudent(){
+    private static void deleteStudent() {
         String no = inputRequired("Enter The Student Number To Delete : ");
         Student removed = students.remove(no);
 
-        if (removed == null){
+        if (removed == null) {
             System.out.println("❌ No Student Found With This Number");
-        }else {
-            saveStudents();
+        } else {
+            saveStudentsCSV();
+            saveRegistrationsCSV();
             System.out.println("✔ Student Deleted...");
         }
     }
@@ -174,11 +260,12 @@ public class Main {
             System.out.println("❌ No Student Found With This Number...");
             return;
         }
-        s.setName(inputRequired("New First Name : "));
-        s.setSurname(inputRequired("New Last Name : "));
-        s.setDepartment(inputRequired("New Department : "));
 
-        saveStudents();
+        s.setName(inputRequired("New Student Name : "));
+        s.setSurname(inputRequired("New Student Surname : "));
+        s.setDepartment(inputRequired("New Student Department : "));
+
+        saveStudentsCSV();
         System.out.println("✔ Student Updated...");
     }
 
@@ -193,22 +280,26 @@ public class Main {
             System.out.println("❌ Login Failed !!! No Student Found !!!");
             return;
         }
+
         System.out.println("Login Successful... Welcome..." + st.getName() + "!");
         courseCatalog.showCourses();
 
-        String code = inputRequired("Enet Course Code To Register : ");
+        String code = inputRequired("Enter Course Code To Register : ");
         Course c = courseCatalog.getCourse(code);
 
         if (c == null) {
             System.out.println("❌ No Such Course Exists...");
             return;
         }
+
         st.registerCourse(c);
-        saveStudents();
+
+        saveRegistrationsCSV();
+        System.out.println("✔ Course Registered");
     }
 
-    private static void courseMenu(){
-        while (true){
+    private static void courseMenu() {
+        while (true) {
             System.out.println("\n--- COURSE OPERATIONS ---");
             System.out.println("1) Add Course");
             System.out.println("2) Delete Course");
@@ -221,8 +312,7 @@ public class Main {
                 case 1 -> addCourse();
                 case 2 -> deleteCourse();
                 case 3 -> editCourse();
-                case 4 -> {return;}
-
+                case 4 -> { return; }
             }
         }
     }
@@ -233,7 +323,7 @@ public class Main {
         int ects = Integer.parseInt(inputRequired("ECTS : "));
 
         courseCatalog.addCourse(new Course(code, name, ects));
-        saveCourses();
+        saveCoursesCSV();
         System.out.println("✔ Course Added...");
     }
 
@@ -242,15 +332,16 @@ public class Main {
 
         boolean removed = courseCatalog.removeCourse(code);
 
-        if (removed){
-            saveCourses();
+        if (removed) {
+            saveCoursesCSV();
+            saveRegistrationsCSV();
             System.out.println("✔ Course Deleted...");
         } else {
             System.out.println("❌ No Course Found With This Code...");
         }
     }
 
-    private static void editCourse(){
+    private static void editCourse() {
         String code = inputRequired("Enter Course Code To Edit : ");
 
         Course c = courseCatalog.getCourse(code);
@@ -263,7 +354,7 @@ public class Main {
         c.setName(inputRequired("New Course Name : "));
         c.setEcts(Integer.parseInt(inputRequired("New ECTS : ")));
 
-        saveCourses();
+        saveCoursesCSV();
         System.out.println("✔ Course Updated...");
     }
 
@@ -271,15 +362,15 @@ public class Main {
         String no = inputRequired("Student Number : ");
         Student st = students.get(no);
 
-        if (st == null){
+        if (st == null) {
             System.out.println("❌ Student Not Found...");
             return;
         }
 
         System.out.println("\n--- STUDENT INFORMATION ---");
-        System.out.println("First Name : " + st.getName());
-        System.out.println("Surname : " + st.getSurname());
-        System.out.println("Department : " + st.getDepartment());
+        System.out.println("Student Name : " + st.getName());
+        System.out.println("Student Surname : " + st.getSurname());
+        System.out.println("Student Department : " + st.getDepartment());
         System.out.println("Registered Courses : ");
         st.showCourses();
         System.out.println("Total Tuition Fee : " + st.calculateTuition() + "TL");
