@@ -146,7 +146,7 @@ public class Main {
 
         Student st = type.equals("G")
                 ? new GraduateStudent(no, name, surname, dept)
-                ? new Student(no, name, surname, dept);
+                : new Student(no, name, surname, dept);
 
         students.put(no, st);
         saveStudents();
@@ -168,7 +168,7 @@ public class Main {
     private static void editStudent() {
         String no = inputRequired("Enter The Student Number To Edit : ");
 
-        Student s students.get(no);
+        Student s = students.get(no);
 
         if (s == null) {
             System.out.println("❌ No Student Found With This Number...");
@@ -203,7 +203,7 @@ public class Main {
             System.out.println("❌ No Such Course Exists...");
             return;
         }
-        st.registerCourse();
+        st.registerCourse(c);
         saveStudents();
     }
 
@@ -268,7 +268,7 @@ public class Main {
     }
 
     private static void studentCheck() {
-        String no inputRequired("Student Number : ");
+        String no = inputRequired("Student Number : ");
         Student st = students.get(no);
 
         if (st == null){
