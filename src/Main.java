@@ -1,4 +1,5 @@
 import java.io.*;
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -114,25 +115,173 @@ public class Main {
         }
     }
 
+    private static void studentMenu() {
+        while (true) {
+            System.out.println("\n --- STUDENT MANAGEMENT ---");
+            System.out.println("1) Add Student");
+            System.out.println("2) Delete Student");
+            System.out.println("3) Edit Student");
+            System.out.println("4) Return To Main Menu\n");
 
+            int sec = Integer.parseInt(inputRequired("Please Select (1-4) : "));
 
+            switch (sec) {
+                case 1 -> loadStudents();
+                case 2 -> deleteStudent();
+                case 3 -> editStudent();
+                case 4 -> {return;}
+            }
 
+        }
 
+    }
 
+    private static void addStudent() {
 
+        String type = inputRequired("Is This Student Undergraduate Or Gradute ? (U/H) ").toUpperCase();
+        String no = inputRequired("Student Number : ");
+        String name = inputRequired("First Name : ");
+        String surname = inputRequired("Last Name : ");
+        String dept = inputRequired("Department : ");
 
+        Student st = type.equals("G")
+                ? new GraduateStudent(no, name, surname, dept)
+                ? new Student(no, name, surname, dept);
 
+        students.put(no, st);
+        saveStudents();
+        System.out.println("✔ Student Added Successfully...");
+    }
 
+    private static void deleteStudent(){
+        String no = inputRequired("Enter The Student Number To Delete : ");
+        Student removed = students.remove(no);
 
+        if (removed == null){
+            System.out.println("❌ No Student Found With This Number");
+        }else {
+            saveStudents();
+            System.out.println("✔ Student Deleted...");
+        }
+    }
 
+    private static void editStudent() {
+        String no = inputRequired("Enter The Student Number To Edit : ");
 
+        Student s students.get(no);
 
+        if (s == null) {
+            System.out.println("❌ No Student Found With This Number...");
+            return;
+        }
+        s.setName(inputRequired("New First Name : "));
+        s.setSurname(inputRequired("New Last Name : "));
+        s.setDepartment(inputRequired("New Department : "));
 
+        saveStudents();
+        System.out.println("✔ Student Updated...");
+    }
 
+    private static void registerCourse() {
 
+        System.out.println("\n--- Course Registration Student Login ---");
 
+        String no = inputRequired("Enter Student Number : ");
+        Student st = students.get(no);
 
+        if (st == null) {
+            System.out.println("❌ Login Failed !!! No Student Found !!!");
+            return;
+        }
+        System.out.println("Login Successful... Welcome..." + st.getName() + "!");
+        courseCatalog.showCourses();
 
+        String code = inputRequired("Enet Course Code To Register : ");
+        Course c = courseCatalog.getCourse(code);
 
+        if (c == null) {
+            System.out.println("❌ No Such Course Exists...");
+            return;
+        }
+        st.registerCourse();
+        saveStudents();
+    }
 
+    private static void courseMenu(){
+        while (true){
+            System.out.println("\n--- COURSE OPERATIONS ---");
+            System.out.println("1) Add Course");
+            System.out.println("2) Delete Course");
+            System.out.println("3) Edit Course");
+            System.out.println("4) Return To Main Menu\n");
+
+            int sec = Integer.parseInt(inputRequired("Please Select (1-4) : "));
+
+            switch (sec) {
+                case 1 -> addCourse();
+                case 2 -> deleteCourse();
+                case 3 -> editCourse();
+                case 4 -> {return;}
+
+            }
+        }
+    }
+
+    private static void addCourse() {
+        String code = inputRequired("Course Code : ");
+        String name = inputRequired("Course Name : ");
+        int ects = Integer.parseInt(inputRequired("ECTS : "));
+
+        courseCatalog.addCourse(new Course(code, name, ects));
+        saveCourses();
+        System.out.println("✔ Course Added...");
+    }
+
+    private static void deleteCourse() {
+        String code = inputRequired("Enter Course Code To Delete : ");
+
+        boolean removed = courseCatalog.removeCourse(code);
+
+        if (removed){
+            saveCourses();
+            System.out.println("✔ Course Deleted...");
+        } else {
+            System.out.println("❌ No Course Found With This Code...");
+        }
+    }
+
+    private static void editCourse(){
+        String code = inputRequired("Enter Course Code To Edit : ");
+
+        Course c = courseCatalog.getCourse(code);
+
+        if (c == null) {
+            System.out.println("❌ No Course Found With This Code...");
+            return;
+        }
+
+        c.setName(inputRequired("New Course Name : "));
+        c.setEcts(Integer.parseInt(inputRequired("New ECTS : ")));
+
+        saveCourses();
+        System.out.println("✔ Course Updated...");
+    }
+
+    private static void studentCheck() {
+        String no inputRequired("Student Number : ");
+        Student st = students.get(no);
+
+        if (st == null){
+            System.out.println("❌ Student Not Found...");
+            return;
+        }
+
+        System.out.println("\n--- STUDENT INFORMATION ---");
+        System.out.println("First Name : " + st.getName());
+        System.out.println("Surname : " + st.getSurname());
+        System.out.println("Department : " + st.getDepartment());
+        System.out.println("Registered Courses : ");
+        st.showCourses();
+        System.out.println("Total Tuition Fee : " + st.calculateTuition() + "TL");
+    }
 }
