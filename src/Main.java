@@ -89,6 +89,31 @@ public class Main {
         }
     }
 
+    private static void mainMenu() {
+        while(true){
+            System.out.println("\n--- MAIN MENU ---");
+            System.out.println("1) Student Operations");
+            System.out.println("2) Course Registration");
+            System.out.println("3) Add / Remove Course");
+            System.out.println("4) Show Course List");
+            System.out.println("5) Student Registration Check");
+            System.out.println("6) Return to Main Screen\n");
+
+            int sec = Integer.parseInt(inputRequired("Please Select (1-6) : "));
+
+            switch (sec) {
+                case 1 -> studentMenu();
+                case 2 -> registerCourse();
+                case 3 -> courseMenu();
+                case 4 -> courseCatalog.showCourses();
+                case 5 -> studentCheck();
+                case 6 -> { return; }
+                default -> System.out.println("❌ Invalid input ❌");
+            }
+
+        }
+    }
+
 
 
 
