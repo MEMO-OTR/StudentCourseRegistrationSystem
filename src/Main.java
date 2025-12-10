@@ -1,6 +1,10 @@
 import java.io.*;
 import java.util.*;
 
+/**
+ * Main class of the Student Course Registration System.
+ * Handles menus, file operations, student and course management.
+ */
 public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
@@ -11,6 +15,12 @@ public class Main {
     private static final String COURSE_FILE = "courses.csv";
     private static final String REG_FILE = "registrations.csv";
 
+    /**
+     * Forces user to enter a non-empty text input.
+     *
+     * @param message prompt message shown to user
+     * @return non-empty user input
+     */
     private static String inputRequired(String message) {
         while (true) {
             System.out.print(message);
@@ -20,6 +30,9 @@ public class Main {
         }
     }
 
+    /**
+     * Saves all students into students.csv file.
+     */
     private static void saveStudentsCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(STUDENT_FILE))) {
             pw.println("number,name,surname,department,type");
@@ -35,6 +48,9 @@ public class Main {
         }
     }
 
+    /**
+     * Loads all students from students.csv file.
+     */
     private static void loadStudentsCSV() {
         try {
             File file = new File(STUDENT_FILE);
@@ -69,6 +85,9 @@ public class Main {
         }
     }
 
+    /**
+     * Saves all courses into courses.csv.
+     */
     private static void saveCoursesCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(COURSE_FILE))) {
             pw.println("code,name,ects");
@@ -80,6 +99,9 @@ public class Main {
         }
     }
 
+    /**
+     * Loads all courses from courses.csv.
+     */
     private static void loadCoursesCSV() {
         try {
             File file = new File(COURSE_FILE);
@@ -104,6 +126,9 @@ public class Main {
         }
     }
 
+    /**
+     * Saves all student–course registrations into registrations.csv.
+     */
     private static void saveRegistrationsCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(REG_FILE))) {
             pw.println("studentNumber,courseCode");
@@ -119,6 +144,10 @@ public class Main {
         }
     }
 
+    /**
+     * Loads all registration records from registrations.csv
+     * and recreates student-course relationships.
+     */
     private static void loadRegistrationsCSV() {
         try {
             File file = new File(REG_FILE);
@@ -151,6 +180,11 @@ public class Main {
         }
     }
 
+    /**
+     * Program entry point. Loads all data and opens main system loop.
+     *
+     * @param args program arguments (unused)
+     */
     public static void main(String[] args) {
 
         loadStudentsCSV();
@@ -178,6 +212,9 @@ public class Main {
         }
     }
 
+    /**
+     * Displays and handles the Main Menu navigation.
+     */
     private static void mainMenu() {
         while (true) {
             System.out.println("\n--- MAIN MENU ---");
@@ -202,6 +239,10 @@ public class Main {
         }
     }
 
+    /**
+     * Student management submenu.
+     * Allows adding, deleting, and editing students.
+     */
     private static void studentMenu() {
         while (true) {
             System.out.println("\n --- STUDENT MANAGEMENT ---");
@@ -221,6 +262,9 @@ public class Main {
         }
     }
 
+    /**
+     * Adds a new student to the system.
+     */
     private static void addStudent() {
 
         String type = inputRequired("Is This Student Undergraduate Or Gradute ? (U/G) ").toUpperCase();
@@ -238,6 +282,9 @@ public class Main {
         System.out.println("✔ Student Added Successfully...");
     }
 
+    /**
+     * Deletes a student using their student number.
+     */
     private static void deleteStudent() {
         String no = inputRequired("Enter The Student Number To Delete : ");
         Student removed = students.remove(no);
@@ -251,6 +298,9 @@ public class Main {
         }
     }
 
+    /**
+     * Edits the name, surname, and department of an existing student.
+     */
     private static void editStudent() {
         String no = inputRequired("Enter The Student Number To Edit : ");
 
@@ -269,6 +319,9 @@ public class Main {
         System.out.println("✔ Student Updated...");
     }
 
+    /**
+     * Handles course registration for a logged-in student.
+     */
     private static void registerCourse() {
 
         System.out.println("\n--- Course Registration Student Login ---");
@@ -298,6 +351,9 @@ public class Main {
         System.out.println("✔ Course Registered");
     }
 
+    /**
+     * Displays the course operations menu (Add, Delete, Edit).
+     */
     private static void courseMenu() {
         while (true) {
             System.out.println("\n--- COURSE OPERATIONS ---");
@@ -317,6 +373,9 @@ public class Main {
         }
     }
 
+    /**
+     * Adds a new course into the course catalog.
+     */
     private static void addCourse() {
         String code = inputRequired("Course Code : ");
         String name = inputRequired("Course Name : ");
@@ -327,6 +386,9 @@ public class Main {
         System.out.println("✔ Course Added...");
     }
 
+    /**
+     * Deletes a course using its course code.
+     */
     private static void deleteCourse() {
         String code = inputRequired("Enter Course Code To Delete : ");
 
@@ -341,6 +403,9 @@ public class Main {
         }
     }
 
+    /**
+     * Edits the name and ECTS value of an existing course.
+     */
     private static void editCourse() {
         String code = inputRequired("Enter Course Code To Edit : ");
 
@@ -358,6 +423,10 @@ public class Main {
         System.out.println("✔ Course Updated...");
     }
 
+    /**
+     * Displays a student's information, registered courses,
+     * and calculated tuition fee.
+     */
     private static void studentCheck() {
         String no = inputRequired("Student Number : ");
         Student st = students.get(no);
