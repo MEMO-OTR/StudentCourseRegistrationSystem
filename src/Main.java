@@ -207,8 +207,7 @@ public class Main {
 
                 System.out.println("...You Logged Out Goodbye...");
                 break;
-            }
-            else System.out.println("❌ Invalid input ❌");
+            } else System.out.println("❌ Invalid input ❌");
         }
     }
 
@@ -233,7 +232,9 @@ public class Main {
                 case 3 -> courseMenu();
                 case 4 -> courseCatalog.showCourses();
                 case 5 -> studentCheck();
-                case 6 -> { return; }
+                case 6 -> {
+                    return;
+                }
                 default -> System.out.println("❌ Invalid Input...");
             }
         }
@@ -257,7 +258,9 @@ public class Main {
                 case 1 -> addStudent();
                 case 2 -> deleteStudent();
                 case 3 -> editStudent();
-                case 4 -> { return; }
+                case 4 -> {
+                    return;
+                }
             }
         }
     }
@@ -267,7 +270,7 @@ public class Main {
      */
     private static void addStudent() {
 
-        String type = inputRequired("Is This Student Undergraduate Or Gradute ? (U/G) ").toUpperCase();
+        String type = inputRequired("Is This Student Undergraduate Or Gradute ? (U/G) :  ").toUpperCase();
         String no = inputRequired("Student Number : ");
         String name = inputRequired("Student Name : ");
         String surname = inputRequired("Student Surname : ");
@@ -368,7 +371,9 @@ public class Main {
                 case 1 -> addCourse();
                 case 2 -> deleteCourse();
                 case 3 -> editCourse();
-                case 4 -> { return; }
+                case 4 -> {
+                    return;
+                }
             }
         }
     }
