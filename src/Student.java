@@ -78,7 +78,7 @@ public class Student implements Registrable {
         double total = 0;
 
         for (Registration r : registrations) {
-            total += r.getCourse().getEcts() * 1.000;
+            total += r.getCourse().getEcts();
         }
 
         return total;

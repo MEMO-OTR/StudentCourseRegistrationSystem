@@ -441,6 +441,8 @@ public class Main {
             return;
         }
 
+
+
         System.out.println("\n--- STUDENT INFORMATION ---");
         System.out.println("Student Name : " + st.getName());
         System.out.println("Student Surname : " + st.getSurname());
@@ -449,4 +451,21 @@ public class Main {
         st.showCourses();
         System.out.println("Total Tuition Fee : " + st.calculateTuition() + "TL");
     }
+    private static void polymorphismDemo() {
+
+        Student s = new GraduateStudent(
+                "1111111111",
+                "Demo",
+                "Graduate",
+                "Computer Engineering"
+        );
+
+        Course demoCourse = new Course("CSE999", "Polymorphism Demo", 5);
+        s.registerCourse(demoCourse);
+
+        System.out.println("Polymorphism Test Tuition : " + s.calculateTuition());
+    }
+
 }
+
+
